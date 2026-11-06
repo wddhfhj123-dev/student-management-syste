@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Management System</title>
+<style>
+    * {
+        box-sizing: border-box;
+    }
+    body {
+        font-family: Arial, sans-serif;
+        background: #f2f3f9;
+        margin: 0;
+        padding: 25px 15px;
+        color: #111;
+    }
+    h1 {
+        color: #243b55;
+        text-align: center;
+        font-size: 32px;
+        line-height: 1.6;
+        margin-bottom: 35px;
+    }
+
+    h2 {
+        color: #243b55;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .student-card {
+        background: white;
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 30px;
+        border-radius: 18px;
+        box-shadow: 0 4px 12px #0002;
+        line-height: 2.5;
+        font-size: 20px;
+    }
+    .student-card h3 {
+        font-size: 25px;
+        margin-top: 0;
+    }
+    .summary {
+        background: white;
+        max-width: 600px;
+        margin: 25px auto;
+        padding: 25px;
+        border-radius: 18px;
+        box-shadow: 0 4px 12px #0002;
+        line-height: 2;
+        font-size: 19px;
+    }
+</style>
+</head>
+<body>
+<h1>نظام إدارة وتحليل نتائج الطلاب</h1>
+<h2>تقارير الطلاب</h2>
+
+<div id="studentsContainer"></div>
+<div id="summary" class="summary"></div>
+
+<script>
+class Student {
+    constructor(id, name, grades, attendance) {
+        this.id = id;
+        this.name = name;
+        this.grades = grades;
+        this.attendance = attendance;
+    }
+    getAverage() {
+        let total = this.grades.reduce((sum, grade) => sum + grade, 0);
+        return total / this.grades.length;
+    }
+    getGrade() {
+        let avg = this.getAverage();
+
+        if (avg >= 90) return "A";
+        else if (avg >= 80) return "B";
+        else if (avg >= 70) return "C";
+        else if (avg >= 60) return "D";
+        else if (avg >= 50) return "E";
+        else return "F";
+    }
+    getResult() {
+        if (this.getAverage() >= 50 && this.attendance >= 75) {
+            return "ناجح";
+        } else {
+            return "يحتاج مراجعة";
+        }
+    }
+}
+const studentsList = [
+    new Student(1, "Ahmed", [90, 90, 90], 90),
+    new Student(2, "Sara", [40, 45, 50], 80),
+    new Student(3, "Mohamed", [70, 75, 80], 85),
+    new Student(4, "Mona", [40, 45, 48], 70)
+];
+const container = document.getElementById("studentsContainer");
+
+studentsList.forEach(student => {
+    const average = student.getAverage();
+
+    console.log({
+        name: student.name,
+        average: average,
+        grade: student.getGrade(),
+        result: student.getResult()
+    });
+    container.innerHTML += `
+        <div class="student-card">
+            <h3>اسم الطالب: ${student.name}</h3>
+            <p>رقم الجلوس: ${student.id}</p>
+            <p>المتوسط: ${average.toFixed(2)}</p>
+            <p>التقدير: ${student.getGrade()}</p>
+            <p>النتيجة: ${student.getResult()}</p>
+            <p>الحضور: ${student.attendance}%</p>
+        </div>
+    `;
+});
+// Filter struggling students
+const strugglingStudents = studentsList.filter(student => {
+    let avg = student.getAverage();
+    return avg >= 40 && avg <= 49;
+});
+// Add 5 marks using map
+const updatedStudents = strugglingStudents.map(student => ({
+    name: student.name,
+    newAverage: student.getAverage() + 5
+}));
+// Calculate average using reduce
+const total = updatedStudents.reduce(
+    (sum, student) => sum + student.newAverage, 0
+);
+const finalAverage = updatedStudents.length > 0
+    ? total / updatedStudents.length
+    : 0;
+console.log("Struggling Students:", strugglingStudents);
+console.log("Updated Students:", updatedStudents);
+console.log("Average After Adding 5 Marks:", finalAverage);
+
+document.getElementById("summary").innerHTML = `
+    <h2>الطلاب المتعثرون</h2>
+    <p>${strugglingStudents.map(s => s.name).join(" ، ") || "لا يوجد"}</p>
+    <h3>المتوسط بعد إضافة 5 درجات</h3>
+    <p>${finalAverage.toFixed(2)}</p>
+`;
+</script>
+</body>
+</html>
